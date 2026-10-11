@@ -19,8 +19,8 @@
     }
   ],
   "vars": {
-    "ALLOWED_ORIGIN": "https://yufwc.github.io",
-    "ALLOWED_HOSTNAME": "yufwc.github.io",
+    "ALLOWED_ORIGIN": "https://chat-crazy-bios.pages.dev",
+    "ALLOWED_HOSTNAME": "chat-crazy-bios.pages.dev",
     "TURNSTILE_ACTION": "gist_chat",
     "UPSTREAM_MODEL": "deepseek-v4.1-flash",
     "SENSENOVA_MODEL": "sensenova-u1.5-lite",

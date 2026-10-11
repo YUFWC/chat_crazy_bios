@@ -33,7 +33,7 @@ npx wrangler secret put SENSENOVA_API_KEYS
 
 `QUOTA_SALT` 至少 16 字符。`CODEARTS_CREDENTIAL_JSON` 是单行 JSON，包含本地凭据中的 `access_key`、`secret_key`、`security_token`、`expired`、`refresh_token`、`code_verifier`、`dpop_private_key`、`dpop_public_key`、`user_id`。此凭据应只由 Worker 使用；本地代理的同一凭据文件必须移出活动目录，避免两个进程竞争轮换 refresh token。`SENSENOVA_API_KEYS` 是去重后的 Key JSON 数组，Worker 按访客分配，遇到明确的 401、403 或 429 时尝试下一条 Key。密钥只保存在部署平台的 Secret 中，不进入 Git。
 
-网页 `public-config.js` 只填 Worker 的公开 HTTPS 地址和 Turnstile sitekey。网站实际聊天和生图需要 Worker 部署、Turnstile 和对应 secrets。GitHub 仓库保存源码；GitHub Pages 无法运行 Worker。
+网页 `site/public-config.js` 只填 Worker 的公开 HTTPS 地址和 Turnstile sitekey。网站实际聊天和生图需要 Cloudflare Pages 与 Worker 部署、Turnstile 和对应 secrets。GitHub 仓库只保存源码。
 
 聊天请求示例：
 
