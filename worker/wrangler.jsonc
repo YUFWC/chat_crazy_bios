@@ -1,0 +1,34 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "gist-gpt-api-guard",
+  "main": "src/index.js",
+  "compatibility_date": "2026-10-11",
+  "durable_objects": {
+    "bindings": [
+      { "name": "QUOTA", "class_name": "Quota" }
+    ]
+  },
+  "exports": {
+    "Quota": { "type": "durable-object", "storage": "sqlite" }
+  },
+  "ratelimits": [
+    {
+      "name": "IP_BURST",
+      "namespace_id": "1001",
+      "simple": { "limit": 12, "period": 60 }
+    }
+  ],
+  "vars": {
+    "ALLOWED_ORIGIN": "https://yufwc.github.io",
+    "ALLOWED_HOSTNAME": "yufwc.github.io",
+    "TURNSTILE_ACTION": "gist_chat",
+    "UPSTREAM_MODEL": "deepseek-v4.1-flash",
+    "SENSENOVA_MODEL": "sensenova-u1.5-lite",
+    "PER_IP_DAILY_IMAGES": "10",
+    "GLOBAL_DAILY_IMAGES": "100",
+    "PER_IP_DAILY_REQUESTS": "100",
+    "GLOBAL_DAILY_REQUESTS": "1000",
+    "GLOBAL_DAILY_TOKENS": "50000000"
+  }
+}
+

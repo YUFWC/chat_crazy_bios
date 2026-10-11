@@ -1,0 +1,9 @@
+**/node_modules/
+**/.dev.vars
+**/.env
+**/.env.*
+**/.wrangler/
+**/.test-build/
+**/codearts-*.json
+**/*.pem
+**/*.key
