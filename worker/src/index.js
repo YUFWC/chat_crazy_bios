@@ -11,6 +11,11 @@ function json(value, status, origin, extra = {}) {
   return new Response(JSON.stringify(value), { status, headers });
 }
 
+function allowedOrigin(origin, env) {
+  return validOrigin(origin, env.ALLOWED_ORIGIN) ||
+    (Boolean(env.ALLOWED_ORIGIN_ALT) && validOrigin(origin, env.ALLOWED_ORIGIN_ALT));
+}
+
 async function readLimitedText(body, maxBytes) {
   if (!body) return '';
   const reader = body.getReader();
@@ -48,6 +53,7 @@ async function actorHash(ip, salt) {
 function configured(env, images = false) {
   try {
     const origin = new URL(env.ALLOWED_ORIGIN);
+    const alternateOrigin = env.ALLOWED_ORIGIN_ALT ? new URL(env.ALLOWED_ORIGIN_ALT) : null;
     const credential = images ? null : JSON.parse(env.CODEARTS_CREDENTIAL_JSON);
     return Boolean(
       env.TURNSTILE_SECRET && env.QUOTA_SALT && env.QUOTA_SALT.length >= 16 &&
@@ -58,6 +64,7 @@ function configured(env, images = false) {
           CHAT_MODELS.includes(env.UPSTREAM_MODEL))) &&
       origin.protocol === 'https:' && origin.origin === env.ALLOWED_ORIGIN &&
       env.ALLOWED_HOSTNAME === origin.hostname && env.TURNSTILE_ACTION &&
+      (!alternateOrigin || (alternateOrigin.protocol === 'https:' && alternateOrigin.origin === env.ALLOWED_ORIGIN_ALT)) &&
       positiveInteger(env.PER_IP_DAILY_REQUESTS, 0) > 0 &&
       positiveInteger(env.GLOBAL_DAILY_REQUESTS, 0) > 0 &&
       positiveInteger(env.GLOBAL_DAILY_TOKENS, 0) > 0 &&
@@ -68,7 +75,7 @@ function configured(env, images = false) {
   }
 }
 
-async function verifyTurnstile(token, ip, env) {
+async function verifyTurnstile(token, ip, origin, env) {
   const body = new URLSearchParams({ secret: env.TURNSTILE_SECRET, response: token, remoteip: ip });
   try {
     const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
@@ -78,7 +85,7 @@ async function verifyTurnstile(token, ip, env) {
     });
     if (!response.ok) return false;
     const result = await response.json();
-    return result.success === true && result.hostname === env.ALLOWED_HOSTNAME && result.action === env.TURNSTILE_ACTION;
+    return result.success === true && result.hostname === new URL(origin).hostname && result.action === env.TURNSTILE_ACTION;
   } catch {
     return false;
   }
@@ -116,7 +123,7 @@ export default {
     const url = new URL(request.url);
     if (url.pathname === '/api/status' && !url.search && request.method === 'GET') {
       const origin = request.headers.get('origin');
-      if (origin && !validOrigin(origin, env.ALLOWED_ORIGIN)) return json({ error: 'forbidden' }, 403);
+      if (origin && !allowedOrigin(origin, env)) return json({ error: 'forbidden' }, 403);
       return json({
         ready: configured(env),
         images: {
@@ -138,7 +145,7 @@ export default {
     const isImage = url.pathname === '/api/images';
     if ((!isImage && url.pathname !== '/api/chat') || url.search) return json({ error: 'not_found' }, 404);
     const requestOrigin = request.headers.get('origin');
-    if (!requestOrigin || !validOrigin(requestOrigin, env.ALLOWED_ORIGIN)) return json({ error: 'forbidden' }, 403);
+    if (!requestOrigin || !allowedOrigin(requestOrigin, env)) return json({ error: 'forbidden' }, 403);
     if (request.method === 'OPTIONS') {
       const requestedMethod = request.headers.get('access-control-request-method');
       if (requestedMethod !== 'POST') return json({ error: 'method_not_allowed' }, 405, requestOrigin);
@@ -178,7 +185,7 @@ export default {
       return json({ error: error.message === 'body_too_large' ? 'body_too_large' : 'invalid_json' }, error.message === 'body_too_large' ? 413 : 400, requestOrigin);
     }
     if (!payload) return json({ error: 'invalid_request' }, 400, requestOrigin);
-    if (!(await verifyTurnstile(payload.turnstileToken, ip, env))) return json({ error: 'verification_failed' }, 403, requestOrigin);
+    if (!(await verifyTurnstile(payload.turnstileToken, ip, requestOrigin, env))) return json({ error: 'verification_failed' }, 403, requestOrigin);
 
     const reservationId = crypto.randomUUID();
     const reservedTokens = isImage ? IMAGE_RESERVED_TOKENS : reserveTokens(payload.messages);

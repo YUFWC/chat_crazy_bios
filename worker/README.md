@@ -10,7 +10,7 @@ CodeArts 福利模型需要该账号先领取模型权益。若推理接口以 H
 - `POST /api/chat`：接受文字消息和一次性 Turnstile token，允许 `deepseek-v4.1-flash`、`glm-5.3-flash`。
 - `POST /api/images`：接受文字提示和一次性 Turnstile token，只生成图片，不修改图片。
 - 每访客 IP 每 UTC 日 100 次，全站每 UTC 日 1000 次，全站每日 50,000,000 tokens，每 IP 每分钟 12 次。图片另设每访客每日 10 次、全站每日 100 次。
-- `快速/推理` 对应上游 `enable_thinking: false/true`。单次聊天输出上限 4096 tokens。
+- `快速/推理` 对 DeepSeek 对应上游 `enable_thinking: false/true`；GLM 5.3 Flash 始终启用思考。单次聊天输出上限 4096 tokens。
 
 SQLite Durable Object 原子预留并结算额度。上游失败或未返回可靠 usage 时，保留预留的次数和 token 数。本站额度不等于 CodeArts 账单硬限额。
 
@@ -22,7 +22,7 @@ npm test
 npm run test:runtime
 ```
 
-在 `wrangler.jsonc` 设置实际网页的 `ALLOWED_ORIGIN`、`ALLOWED_HOSTNAME`、Turnstile action 和限额。按 Cloudflare 账号分配 `ratelimits[0].namespace_id`。
+在 `wrangler.jsonc` 设置实际网页的 `ALLOWED_ORIGIN`、`ALLOWED_HOSTNAME`、可选的 `ALLOWED_ORIGIN_ALT`、Turnstile action 和限额。Turnstile 小组件须登记每个允许的主机名。按 Cloudflare 账号分配 `ratelimits[0].namespace_id`。
 
 设置 Worker secrets：
 

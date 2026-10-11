@@ -70,15 +70,8 @@
 .search-result-link:hover{border-color:var(--accent);background:var(--accent-soft)}
 @media(max-width:480px){.tools-label{font-size:0;gap:0}.tools-label svg{width:18px;height:18px}.pace-btn{padding:0 6px;font-size:11px}.model-btn{padding:0 6px;font-size:11px}}
 
-/* API connection */
+/* Visitor verification */
 .turnstile-host:empty{display:none}
 .turnstile-host{max-width:100%;margin:0 0 9px;overflow:hidden}
-.api-facts{display:grid;gap:9px;margin:15px 0}
-.api-facts>div{display:flex;justify-content:space-between;gap:15px;padding:9px 11px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2);font-size:12px}
-.api-facts dt{color:var(--muted)}
-.api-facts dd{margin:0;max-width:65%;overflow-wrap:anywhere;text-align:right;font-weight:650}
-.api-note{font-size:11px!important}
-.api-section{padding-top:2px}
-.api-section+.info-link{margin-top:18px}
 .message.pending .message-bubble{color:var(--muted);opacity:.75}
 .send-btn:disabled{opacity:.55;cursor:wait;transform:none}

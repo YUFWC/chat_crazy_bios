@@ -108,35 +108,30 @@
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => { el.hidden = true; }, 3900);
   }
+  function updateConnectionLabel(ready) {
+    const footnote = document.querySelector('.side-footnote');
+    if (footnote?.lastChild) footnote.lastChild.textContent = ready ? ' 本地保存 · 服务已连接' : ' 本地保存 · 服务待连接';
+    const topPill = document.querySelector('.local-pill');
+    if (topPill?.lastChild) topPill.lastChild.textContent = ready ? ' 服务已连接' : ' 服务待连接';
+  }
   async function refreshApiStatus() {
-    $('apiEndpointText').textContent = apiBase || '未配置';
     if (!apiEnabled) {
-      $('apiStatusText').textContent = '聊天 API 未配置，当前继续在本地保存对话。';
+      apiStatus = null;
+      renderMode();
+      updateConnectionLabel(false);
       return;
     }
-    $('apiStatusText').textContent = '正在检查后端连接…';
     try {
       const response = await fetch(apiBase + '/api/status', { signal: AbortSignal.timeout(8000), cache: 'no-store' });
       if (!response.ok) throw new Error('status_' + response.status);
       const data = await response.json();
       apiStatus = data;
-      $('apiImageModelText').textContent = data.images?.model || '未配置';
-      $('apiImageStatusText').textContent = data.images?.ready ? `已配置 · 每人每日 ${data.images.visitorRequestsPerDay} 次，全站 ${data.images.siteRequestsPerDay} 次` : '生图服务尚未配置';
-      $('apiModelText').textContent = data.model || '未设置';
-      $('apiVisitorLimit').textContent = `${data.limits?.visitorRequestsPerDay ?? 100} 次`;
-      $('apiSiteLimit').textContent = `${data.limits?.siteRequestsPerDay ?? 1000} 次`;
-      $('apiTokenLimit').textContent = `${Number(data.limits?.siteTokensPerDay ?? 50_000_000).toLocaleString('zh-CN')} Token`;
-      $('apiStatusText').textContent = data.ready ? 'Worker 可达，聊天服务已配置。' : 'Worker 可达，聊天服务尚未配置。';
       renderMode();
-      const footnote = document.querySelector('.side-footnote');
-      if (footnote?.lastChild) footnote.lastChild.textContent = data.ready ? ' 本地保存 · API 已连接' : ' 本地保存 · API 待配置';
-      const topPill = document.querySelector('.local-pill');
-      if (topPill?.lastChild) topPill.lastChild.textContent = data.ready ? ' API 已连接' : ' API 待配置';
+      updateConnectionLabel(data.ready);
     } catch (_) {
       apiStatus = null;
-      $('apiImageStatusText').textContent = '后端不可达';
-      $('apiStatusText').textContent = '无法连接 API，请检查 Worker 地址与跨域配置。';
-      $('composerNotice').textContent = '聊天 API 暂不可达，发送后会显示接口错误。';
+      renderMode();
+      updateConnectionLabel(false);
     }
   }
   function loadTurnstile() {
@@ -793,7 +788,6 @@
     toast(`已选择 ${model}。`);
   });
   $('settingsBtn').addEventListener('click', () => { closeSidebar(); $('settingsDialog').showModal(); refreshApiStatus(); });
-  $('apiCheckBtn').addEventListener('click', refreshApiStatus);
   $('settingsClose').addEventListener('click', () => $('settingsDialog').close());
   $('settingsDialog').addEventListener('click', (e) => { if (e.target === $('settingsDialog')) $('settingsDialog').close(); });
   for (const suggestion of document.querySelectorAll('.suggestion')) suggestion.addEventListener('click', () => {

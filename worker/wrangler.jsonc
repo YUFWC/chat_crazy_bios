@@ -19,8 +19,9 @@
     }
   ],
   "vars": {
-    "ALLOWED_ORIGIN": "https://chat-crazy-bios.pages.dev",
-    "ALLOWED_HOSTNAME": "chat-crazy-bios.pages.dev",
+    "ALLOWED_ORIGIN": "https://chat.crazyhao.online",
+    "ALLOWED_ORIGIN_ALT": "https://chat-crazy-bios.pages.dev",
+    "ALLOWED_HOSTNAME": "chat.crazyhao.online",
     "TURNSTILE_ACTION": "gist_chat",
     "UPSTREAM_MODEL": "deepseek-v4.1-flash",
     "SENSENOVA_MODEL": "sensenova-u1.5-lite",
