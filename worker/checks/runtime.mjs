@@ -4,6 +4,7 @@ import { Miniflare, convertV4MiniflareOptions } from 'miniflare';
 const png = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a4xsAAAAASUVORK5CYII=';
 let imageCalls = 0;
 const chatModels = [];
+const chatThinking = [];
 let failImages = false;
 const bindings = {
   ALLOWED_ORIGIN: 'https://crazyhao.online', ALLOWED_HOSTNAME: 'crazyhao.online', TURNSTILE_ACTION: 'gist_chat',
@@ -37,7 +38,7 @@ const mf = new Miniflare(convertV4MiniflareOptions({
     if (url.hostname === 'snap-access.cn-north-4.myhuaweicloud.com') {
       const body = await request.json();
       chatModels.push(body.model);
-      assert.equal(body.enable_thinking, true);
+      chatThinking.push(body.enable_thinking);
       assert.match(request.headers.get('authorization'), /^SDK-HMAC-SHA256 /);
       return new Response('data:' + JSON.stringify({ choices: [{ message: { content: 'synthetic chat OK' } }], usage: { total_tokens: 25 } }) + '\n\ndata:[DONE]\n\n');
     }
@@ -68,9 +69,12 @@ try {
   response = await post('/api/chat', { turnstileToken: 'ok', pace: 'reason', messages: [{ role: 'user', content: 'hello' }] });
   assert.equal(response.status, 200);
   assert.equal((await response.json()).reply, 'synthetic chat OK');
-  response = await post('/api/chat', { turnstileToken: 'ok', pace: 'reason', model: 'glm-5.3-flash', messages: [{ role: 'user', content: 'hello' }] });
+  response = await post('/api/chat', { turnstileToken: 'ok', pace: 'fast', messages: [{ role: 'user', content: 'hello' }] });
   assert.equal(response.status, 200);
-  assert.deepEqual(chatModels, ['deepseek-v4.1-flash', 'glm-5.3-flash']);
+  response = await post('/api/chat', { turnstileToken: 'ok', pace: 'fast', model: 'glm-5.3-flash', messages: [{ role: 'user', content: 'hello' }] });
+  assert.equal(response.status, 200);
+  assert.deepEqual(chatModels, ['deepseek-v4.1-flash', 'deepseek-v4.1-flash', 'glm-5.3-flash']);
+  assert.deepEqual(chatThinking, [true, false, true]);
   failImages = true;
   response = await post('/api/images', input, '192.0.2.20');
   assert.equal(response.status, 502);

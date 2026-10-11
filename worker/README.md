@@ -2,6 +2,8 @@
 
 Worker 处理访客验证、短时限流和每日配额，并使用独立的 CodeArts 凭据直接访问官方 HTTPS API。刷新后的临时凭据由单个 Durable Object 保存；服务器上原有的另一组 CodeArts 凭据继续由服务器管理。图片请求由 Worker 调用 SenseNova 的文字生图接口。
 
+CodeArts 福利模型需要该账号先领取模型权益。若推理接口以 HTTP 200 返回 `error_code: 4004`、`error_msg: benefit not found`，说明账号尚未领取权益；`/api/status` 只检查 Worker 配置，不能证明上游账号有可用额度。GLM 5.3 Flash 不接受 `enable_thinking: false`，Worker 在快速模式下仍会为它启用思考。
+
 ## 接口与额度
 
 - `GET /api/status`：返回配置状态、可选模型和额度，不返回密钥。

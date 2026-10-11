@@ -86,11 +86,13 @@ async function verifyTurnstile(token, ip, env) {
 
 async function proxyChat(messages, pace, model, env, credential) {
   try {
+    const upstreamModel = model || env.UPSTREAM_MODEL;
     const body = JSON.stringify({
-      model: model || env.UPSTREAM_MODEL,
+      model: upstreamModel,
       messages,
       max_tokens: MAX_OUTPUT_TOKENS,
-      enable_thinking: pace === 'reason',
+      // GLM 5.3 Flash rejects requests that disable thinking, even in fast mode.
+      enable_thinking: upstreamModel === 'glm-5.3-flash' || pace === 'reason',
       tool_stream: false,
       stream: false,
     });
