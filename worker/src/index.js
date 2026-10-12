@@ -137,8 +137,8 @@ export default {
         models: CHAT_MODELS,
         limits: {
           visitorRequestsPerDay: positiveInteger(env.PER_IP_DAILY_REQUESTS, 100),
-          siteRequestsPerDay: positiveInteger(env.GLOBAL_DAILY_REQUESTS, 1000),
-          siteTokensPerDay: positiveInteger(env.GLOBAL_DAILY_TOKENS, 50_000_000),
+          siteRequestsPerDay: positiveInteger(env.GLOBAL_DAILY_REQUESTS, 80_000),
+          siteTokensPerDay: positiveInteger(env.GLOBAL_DAILY_TOKENS, 200_000_000),
         },
       }, 200, origin);
     }
@@ -288,8 +288,8 @@ export class Quota extends DurableObject {
     if (input.kind !== undefined && input.kind !== 'chat' && input.kind !== 'image') return json({ error: 'invalid_request' }, 400);
     const isImage = input.kind === 'image';
     const actorLimit = positiveInteger(this.env.PER_IP_DAILY_REQUESTS, 100);
-    const globalLimit = positiveInteger(this.env.GLOBAL_DAILY_REQUESTS, 1000);
-    const tokenLimit = positiveInteger(this.env.GLOBAL_DAILY_TOKENS, 50_000_000);
+    const globalLimit = positiveInteger(this.env.GLOBAL_DAILY_REQUESTS, 80_000);
+    const tokenLimit = positiveInteger(this.env.GLOBAL_DAILY_TOKENS, 200_000_000);
     const now = new Date();
     const day = now.toISOString().slice(0, 10);
     const resetAt = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1)).toISOString();

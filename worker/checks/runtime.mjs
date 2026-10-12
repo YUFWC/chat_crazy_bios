@@ -12,7 +12,7 @@ const bindings = {
   TURNSTILE_SECRET: 'synthetic-turnstile', QUOTA_SALT: 'synthetic-salt-long-enough',
   CODEARTS_CREDENTIAL_JSON: JSON.stringify({ access_key: 'TEST_AK', secret_key: 'TEST_SK' }),
   UPSTREAM_MODEL: 'deepseek-v4.1-flash', SENSENOVA_API_KEYS: JSON.stringify(['sk-synthetic-one', 'sk-synthetic-two']),
-  PER_IP_DAILY_REQUESTS: '100', GLOBAL_DAILY_REQUESTS: '1000', GLOBAL_DAILY_TOKENS: '50000000',
+  PER_IP_DAILY_REQUESTS: '100', GLOBAL_DAILY_REQUESTS: '80000', GLOBAL_DAILY_TOKENS: '200000000',
   PER_IP_DAILY_IMAGES: '2', GLOBAL_DAILY_IMAGES: '4',
 };
 const mf = new Miniflare(convertV4MiniflareOptions({

@@ -17,11 +17,11 @@ test('only bounded user/assistant chat with a fresh token is accepted', () => {
 });
 
 test('request and token limits include the last permitted reservation', () => {
-  assert.equal(quotaDecision(99, 999, 49_990_000, 10_000, 100, 1000, 50_000_000), 'allow');
-  assert.equal(quotaDecision(100, 999, 0, 1, 100, 1000, 50_000_000), 'actor_limit');
-  assert.equal(quotaDecision(5, 1000, 0, 1, 100, 1000, 50_000_000), 'global_limit');
-  assert.equal(quotaDecision(5, 900, 50_000_000, 1, 100, 1000, 50_000_000), 'token_limit');
-  assert.equal(quotaDecision(-1, 0, 0, 1, 100, 1000, 50_000_000), 'invalid');
+  assert.equal(quotaDecision(99, 79_999, 199_990_000, 10_000, 100, 80_000, 200_000_000), 'allow');
+  assert.equal(quotaDecision(100, 79_999, 0, 1, 100, 80_000, 200_000_000), 'actor_limit');
+  assert.equal(quotaDecision(5, 80_000, 0, 1, 100, 80_000, 200_000_000), 'global_limit');
+  assert.equal(quotaDecision(5, 79_000, 200_000_000, 1, 100, 80_000, 200_000_000), 'token_limit');
+  assert.equal(quotaDecision(-1, 0, 0, 1, 100, 80_000, 200_000_000), 'invalid');
 });
 
 test('reservation covers UTF-8 input bytes and bounded output', () => {

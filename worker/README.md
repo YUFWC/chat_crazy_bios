@@ -9,10 +9,12 @@ CodeArts 福利模型需要该账号先领取模型权益。若推理接口以 H
 - `GET /api/status`：返回配置状态、可选模型和额度，不返回密钥。
 - `POST /api/chat`：接受文字消息和一次性 Turnstile token，允许 `deepseek-v4.1-flash`、`glm-5.3-flash`。
 - `POST /api/images`：接受文字提示和一次性 Turnstile token，只生成图片，不修改图片。
-- 每访客 IP 每 UTC 日 100 次，全站每 UTC 日 1000 次，全站每日 50,000,000 tokens，每 IP 每分钟 12 次。图片另设每访客每日 10 次、全站每日 100 次。
+- 每访客 IP 每 UTC 日 100 次，全站每 UTC 日 80,000 次，全站每日 200,000,000 tokens，每 IP 每分钟 12 次。图片另设每访客每日 10 次、全站每日 100 次。
 - `快速/推理` 对 DeepSeek 对应上游 `enable_thinking: false/true`；GLM 5.3 Flash 始终启用思考。单次聊天输出上限 4096 tokens。
 
 SQLite Durable Object 原子预留并结算额度。上游失败或未返回可靠 usage 时，保留预留的次数和 token 数。本站额度不等于 CodeArts 账单硬限额。
+
+这些是应用层上限，不代表 Cloudflare 免费套餐可承载同等数量的成功聊天。每次成功聊天约触发 3 次 Durable Object 请求、5 行 SQLite 写入；按免费套餐每日 100,000 次 Durable Object 请求及 100,000 行写入估算，SQLite 写入会在约 20,000 次成功聊天后先触顶。要让 80,000 次/日成为实际可用容量，须改造配额存储或使用付费套餐。
 
 ## 配置
 
